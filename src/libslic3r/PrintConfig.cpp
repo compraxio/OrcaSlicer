@@ -3768,6 +3768,81 @@ void PrintConfigDef::init_fff_params()
     def->mode    = comAdvanced;
     def->set_default_value(new ConfigOptionFloat(0));
 
+    def = this->add("printer_power_watts", coFloat);
+    def->label = L("Printer power consumption");
+    def->tooltip = L("Average power consumption of the printer in watts (W). Used to calculate electricity cost automatically.");
+    def->sidetext = L("W");
+    def->min = 0;
+    def->mode = comAdvanced;
+    def->set_default_value(new ConfigOptionFloat(0));
+
+    def = this->add("electricity_rate", coFloat);
+    def->label = L("Electricity rate");
+    def->tooltip = L("Cost per kilowatt-hour (kWh) of electricity.");
+    def->sidetext = L("money/kWh");
+    def->min = 0;
+    def->mode = comAdvanced;
+    def->set_default_value(new ConfigOptionFloat(0));
+
+    def = this->add("printer_purchase_price", coFloat);
+    def->label = L("Printer purchase price");
+    def->tooltip = L("Original purchase price of the printer. Used to calculate depreciation per print.");
+    def->sidetext = L("money");
+    def->min = 0;
+    def->mode = comAdvanced;
+    def->set_default_value(new ConfigOptionFloat(0));
+
+    def = this->add("printer_lifetime_hours", coFloat);
+    def->label = L("Printer expected lifetime");
+    def->tooltip = L("Expected total printing hours before the printer needs replacement.");
+    def->sidetext = L("h");
+    def->min = 1;
+    def->mode = comAdvanced;
+    def->set_default_value(new ConfigOptionFloat(2000));
+
+    def = this->add("maintenance_cost_per_hour", coFloat);
+    def->label = L("Maintenance cost per hour");
+    def->tooltip = L("Estimated cost of consumables (nozzles, build plate, lubricant, etc.) averaged per hour of printing.");
+    def->sidetext = L("money/h");
+    def->min = 0;
+    def->mode = comAdvanced;
+    def->set_default_value(new ConfigOptionFloat(0));
+
+    def = this->add("fixed_cost_per_print", coFloat);
+    def->label = L("Fixed cost per print");
+    def->tooltip = L("Fixed overhead per print job: preparation, post-processing, packaging, etc.");
+    def->sidetext = L("money");
+    def->min = 0;
+    def->mode = comAdvanced;
+    def->set_default_value(new ConfigOptionFloat(0));
+
+    def = this->add("profit_margin_percent", coFloat);
+    def->label = L("Profit margin");
+    def->tooltip = L("Percentage added on top of total costs as profit margin.");
+    def->sidetext = L("%");
+    def->min = 0;
+    def->max = 1000;
+    def->mode = comAdvanced;
+    def->set_default_value(new ConfigOptionFloat(0));
+
+    def = this->add("tax_percent", coFloat);
+    def->label = L("Tax / VAT");
+    def->tooltip = L("Percentage of tax or VAT applied to the final price.");
+    def->sidetext = L("%");
+    def->min = 0;
+    def->max = 100;
+    def->mode = comAdvanced;
+    def->set_default_value(new ConfigOptionFloat(0));
+
+    def = this->add("failure_rate_percent", coFloat);
+    def->label = L("Estimated failure rate");
+    def->tooltip = L("Percentage of prints that fail on average. Increases material and electricity costs proportionally.");
+    def->sidetext = L("%");
+    def->min = 0;
+    def->max = 100;
+    def->mode = comAdvanced;
+    def->set_default_value(new ConfigOptionFloat(0));
+
     // Orca: may remove this option later
     def =this->add("support_chamber_temp_control",coBool);
     def->label=L("Support control chamber temperature");

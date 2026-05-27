@@ -4153,13 +4153,42 @@ void GCodeViewer::render_legend(float &legend_height, int canvas_width, int canv
         ImGui::SameLine();
         imgui.text(format_compact_count(m_print_statistics.total_extruder_changes));
 
-        //BBS display cost
-        ImGui::Dummy({ window_padding, window_padding });
-        ImGui::SameLine();
-        imgui.text(_u8L("Cost")+":");
-        ImGui::SameLine();
-        ::sprintf(buf, "%.2f", ps.total_cost);
-        imgui.text(buf);
+        //BBS display cost breakdown
+        if (ps.cost_filament > 0. || ps.cost_electricity > 0. || ps.cost_machine_wear > 0.) {
+            float cost_max_len = window_padding + 2 * ImGui::GetStyle().ItemSpacing.x;
+            cost_max_len += ImGui::CalcTextSize(_u8L("Failure buffer").c_str()).x;
+            auto render_cost_row = [&](const std::string& label, double value, bool bold = false) {
+                ImGui::Dummy({ window_padding, window_padding });
+                ImGui::SameLine();
+                if (bold) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                imgui.text(label + ":");
+                ImGui::SameLine(cost_max_len);
+                ::sprintf(buf, "%.2f", value);
+                imgui.text(buf);
+                if (bold) ImGui::PopStyleColor();
+            };
+            render_cost_row(_u8L("Filament"),      ps.cost_filament);
+            render_cost_row(_u8L("Electricity"),   ps.cost_electricity);
+            render_cost_row(_u8L("Machine wear"),  ps.cost_machine_wear);
+            render_cost_row(_u8L("Maintenance"),   ps.cost_maintenance);
+            render_cost_row(_u8L("Fixed costs"),   ps.cost_fixed);
+            if (ps.cost_waste > 0.)
+                render_cost_row(_u8L("Failure buffer"), ps.cost_waste);
+            render_cost_row(_u8L("Subtotal"),      ps.subtotal_before_margin);
+            if (ps.cost_margin > 0.)
+                render_cost_row(_u8L("Margin"),    ps.cost_margin);
+            if (ps.cost_tax > 0.)
+                render_cost_row(_u8L("Tax / VAT"), ps.cost_tax);
+            ImGui::Separator();
+            render_cost_row(_u8L("Total cost"),    ps.total_cost, /*bold=*/true);
+        } else {
+            ImGui::Dummy({ window_padding, window_padding });
+            ImGui::SameLine();
+            imgui.text(_u8L("Cost")+":");
+            ImGui::SameLine();
+            ::sprintf(buf, "%.2f", ps.total_cost);
+            imgui.text(buf);
+        }
 
         break;
     }
@@ -4614,13 +4643,42 @@ void GCodeViewer::render_legend(float &legend_height, int canvas_width, int canv
         imgui.text(buf);
         ImGui::SameLine();
         imgui.text("  " + format_compact_weight(ps.total_weight - exlude_g, imperial_units));
-        //BBS: display cost of filaments
-        ImGui::Dummy({ window_padding, window_padding });
-        ImGui::SameLine();
-        imgui.text(cost_str + ":");
-        ImGui::SameLine(max_len);
-        ::sprintf(buf, "%.2f", ps.total_cost);
-        imgui.text(buf);
+        //BBS: display cost breakdown
+        if (ps.cost_filament > 0. || ps.cost_electricity > 0. || ps.cost_machine_wear > 0.) {
+            float cost_max_len = window_padding + 2 * ImGui::GetStyle().ItemSpacing.x;
+            cost_max_len += ImGui::CalcTextSize(_u8L("Failure buffer").c_str()).x;
+            auto render_cost_row = [&](const std::string& label, double value, bool bold = false) {
+                ImGui::Dummy({ window_padding, window_padding });
+                ImGui::SameLine();
+                if (bold) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                imgui.text(label + ":");
+                ImGui::SameLine(cost_max_len);
+                ::sprintf(buf, "%.2f", value);
+                imgui.text(buf);
+                if (bold) ImGui::PopStyleColor();
+            };
+            render_cost_row(_u8L("Filament"),      ps.cost_filament);
+            render_cost_row(_u8L("Electricity"),   ps.cost_electricity);
+            render_cost_row(_u8L("Machine wear"),  ps.cost_machine_wear);
+            render_cost_row(_u8L("Maintenance"),   ps.cost_maintenance);
+            render_cost_row(_u8L("Fixed costs"),   ps.cost_fixed);
+            if (ps.cost_waste > 0.)
+                render_cost_row(_u8L("Failure buffer"), ps.cost_waste);
+            render_cost_row(_u8L("Subtotal"),      ps.subtotal_before_margin);
+            if (ps.cost_margin > 0.)
+                render_cost_row(_u8L("Margin"),    ps.cost_margin);
+            if (ps.cost_tax > 0.)
+                render_cost_row(_u8L("Tax / VAT"), ps.cost_tax);
+            ImGui::Separator();
+            render_cost_row(_u8L("Total cost"),    ps.total_cost, /*bold=*/true);
+        } else {
+            ImGui::Dummy({ window_padding, window_padding });
+            ImGui::SameLine();
+            imgui.text(cost_str + ":");
+            ImGui::SameLine(max_len);
+            ::sprintf(buf, "%.2f", ps.total_cost);
+            imgui.text(buf);
+        }
     }
     //BBS: start gcode is mostly same with prepeare time
     if (time_mode.prepare_time != 0.0f) {

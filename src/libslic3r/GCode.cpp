@@ -1929,7 +1929,50 @@ namespace DoExport {
             total_cost          += weight * extruder->filament_cost() * 0.001;
         }
 
-        total_cost += config.time_cost.getFloat() * (normal_print_time/3600.0);
+        double hours           = normal_print_time / 3600.0;
+        double filament_only   = total_cost;
+
+        total_cost += config.time_cost.getFloat() * hours;
+
+        double kw             = config.printer_power_watts.getFloat() / 1000.0;
+        print_statistics.cost_electricity =
+            kw * hours * config.electricity_rate.getFloat();
+
+        double lifetime       = config.printer_lifetime_hours.getFloat();
+        double wear_per_hour  = (lifetime > 0)
+            ? config.printer_purchase_price.getFloat() / lifetime
+            : 0.0;
+        print_statistics.cost_machine_wear = wear_per_hour * hours;
+
+        print_statistics.cost_maintenance =
+            config.maintenance_cost_per_hour.getFloat() * hours;
+
+        print_statistics.cost_fixed =
+            config.fixed_cost_per_print.getFloat();
+
+        print_statistics.cost_filament = filament_only;
+
+        double base_cost = filament_only
+            + config.time_cost.getFloat() * hours
+            + print_statistics.cost_electricity
+            + print_statistics.cost_machine_wear
+            + print_statistics.cost_maintenance
+            + print_statistics.cost_fixed;
+
+        double failure_factor = 1.0 + (config.failure_rate_percent.getFloat() / 100.0);
+        print_statistics.cost_waste = base_cost * (failure_factor - 1.0);
+        base_cost *= failure_factor;
+
+        print_statistics.subtotal_before_margin = base_cost;
+
+        print_statistics.cost_margin =
+            base_cost * (config.profit_margin_percent.getFloat() / 100.0);
+
+        double with_margin = base_cost + print_statistics.cost_margin;
+        print_statistics.cost_tax =
+            with_margin * (config.tax_percent.getFloat() / 100.0);
+
+        total_cost = with_margin + print_statistics.cost_tax;
 
         print_statistics.total_extruded_volume = total_extruded_volume;
         print_statistics.total_used_filament   = total_used_filament;
